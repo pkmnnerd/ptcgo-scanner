@@ -5,14 +5,14 @@ WORKDIR /app
 
 # Copy package.json information and install dependencies
 COPY package.json ./
-COPY package-lock.json ./
-RUN npm install
+COPY yarn.lock ./
+RUN yarn install
 
 # Copy all other files
 COPY . .
 
 # Build production files
-RUN npm run build --omit=dev
+RUN yarn run build --omit=dev
 
 # Use nginx image to serve react files
 FROM nginx
