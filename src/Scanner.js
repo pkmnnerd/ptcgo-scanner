@@ -1,31 +1,35 @@
-import React, { useEffect,useState } from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { QrReader } from 'react-qr-reader';
 import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 
+import Viewfinder from './Viewfinder';
+
 const CODE_REGEX = /^[A-Z0-9]{3}-[A-Z0-9]{4}-[A-Z0-9]{3}-[A-Z0-9]{3}$/
 
+const MUTED_KEY = 'ptcgo-scanner:muted';
 
 export default function Scanner() {
   const [codes, setCodes] = useState(new Set());
   const [text, setText] = useState('Scanning...');
   const [color, setColor] = useState('info');
   const [lastCode, setLastCode] = useState([]);
-  const [deviceId, setDeviceId] = useState('');
-  const [devices, setDevices] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [permission, setPermission] = useState('prompt');
   const [open, setOpen] = useState(false);
+  const [facingBack, setFacingBack] = useState(true);
+
+  if (!localStorage.getItem(MUTED_KEY)) {
+    localStorage.setItem(MUTED_KEY, 'true')
+  }
+  const [muted, setMuted] = useState(localStorage.getItem(MUTED_KEY) && localStorage.getItem(MUTED_KEY) === 'true');
+  localStorage.setItem(MUTED_KEY, muted.toString())
+
+  console.log(facingBack);
 
   useEffect(() => {
     navigator.permissions.query({name:'camera'}).then(function(result) {
@@ -36,88 +40,61 @@ export default function Scanner() {
     });
   }, [setPermission]);
 
-  useEffect(() => {
-    if (permission === 'prompt') {
-      navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}}).then((stream) => {
-        stream.getTracks().forEach((track) => track.stop());
-      });
-    }
-    if (permission === 'granted') {
-      navigator.mediaDevices.enumerateDevices()
-        .then((result) => {
-          const devices = result.filter(device => device.kind === 'videoinput');
-          setDevices(devices);
-          //setDeviceId(devices[0].deviceId);
-          setLoading(false);
-        });
-    }
-  },[setDeviceId, setDevices, setLoading, permission]);
-
-  if (permission === 'prompt') {
-    return (
-      <Typography variant="h5" align="center">Waiting for permission</Typography>
-    );
-  }
-
   if (permission === 'denied') {
     return (
       <Alert severity="error">Need camera permission</Alert>
     );
   }
 
-
-  if (deviceId === '') {
-    return (
-      <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Select a camera</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={deviceId}
-          label="Select a camera"
-          onChange={event => setDeviceId(event.target.value)}
-        >
-          { devices.map(device => <MenuItem value={device.deviceId} key={device.deviceId}>{device.label}</MenuItem>) }
-        </Select>
-      </FormControl>
-    );
-  }
-  //navigator.mediaDevices.getUserMedia({camera: {facingMode: 'environment'}});
   return (
     <>
-      <Container maxWidth="sm">
-      <QrReader
-        onResult={(result, error) => {
-          if (!!result) {
-            if (result.text.match(CODE_REGEX)) {
-              const code = result.text;
-              if (code !== lastCode[0]) {
-                if (codes.has(code)) {
-                  setText(`Code ${code} already scanned.`);
-                  setColor('warning');
-                  const audio = new Audio('/ptcgo-scanner/bump.mp3');
-                  audio.play();
-                } else {
-                  codes.add(code);
-                  setText(`${code} added.`);
-                  setColor('success');
-                  const audio = new Audio('/ptcgo-scanner/blip.mp3');
-                  audio.play();
+      <Container maxWidth="sm" disableGutters>
+        <QrReader
+          key={facingBack ? 'a' : 'b'}
+          onResult={(result, error) => {
+            if (!!result) {
+              if (result.text.match(CODE_REGEX)) {
+                const code = result.text;
+                if (code !== lastCode[0]) {
+                  if (codes.has(code)) {
+                    setText(`Code ${code} already scanned.`);
+                    setColor('warning');
+                    if (localStorage.getItem(MUTED_KEY) === 'false') {
+                      const audio = new Audio('/ptcgo-scanner/bump.mp3');
+                      audio.play();
+                    }
+                  } else {
+                    codes.add(code);
+                    setText(`${code} added.`);
+                    setColor('success');
+                    if (localStorage.getItem(MUTED_KEY) === 'false') {
+                      const audio = new Audio('/ptcgo-scanner/blip.mp3');
+                      audio.play();
+                    }
+                  }
                 }
+                lastCode[0] = code;
               }
-              lastCode[0] = code;
             }
+            
+            if (!!error) {
+              setText('Scanning...');
+              setColor('info');
+              lastCode[0] = '';
+            }
+          }}
+          constraints={{ facingMode: facingBack ? 'environment' : 'user'}}
+          scanDelay={200}
+          ViewFinder={() =>
+            <Viewfinder
+              muted={muted}
+              setMuted={setMuted}
+              facing={facingBack}
+              setFacing={setFacingBack}
+            />
           }
-          
-          if (!!error) {
-            setText('Scanning...');
-            setColor('info');
-            lastCode[0] = '';
-          }
-        }}
-        constraints={{ deviceId }}
-        scanDelay={200}
-      /> 
+          videoStyle={{objectFit: 'cover'}}
+        /> 
       </Container>
       <Alert severity={color}>{text}</Alert>
       <Typography># of Codes: {codes.size}</Typography>
