@@ -29,7 +29,6 @@ export default function CodeGroupsPage(props) {
   const groups = useLiveQuery(
     () => db.groups.toArray()
   )
-  console.log(groups)
 
   const listElement = (
     <List disablePadding>

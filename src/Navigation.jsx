@@ -21,8 +21,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 
 
-export default function Navigation(props) {
-  console.log(theme);
+export default function Navigation() {
   const [value, setValue] = useState(0);
 
   const useNavRail = useMediaQuery(theme.breakpoints.up('sm'));

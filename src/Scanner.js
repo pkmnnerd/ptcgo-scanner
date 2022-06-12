@@ -46,7 +46,6 @@ export default function Scanner(props) {
         setLoading(false);
       })
   }, [codes, activeGroup, setLoading])
-  console.log(codes);
 
   useEffect(() => {
     navigator.permissions.query({name:'camera'}).then(function(result) {
@@ -70,14 +69,16 @@ export default function Scanner(props) {
 
   const saveCode = (code, codes) => {
     codes.add(code)
+    console.log(code)
+    console.log(codes)
+    console.log(codes.size)
     db.codes.add({
       id: `${activeGroup}_${code}`,
       groupId: activeGroup,
       code: code,
       timestamp: Math.floor(Date.now() / 1000),
     })
-    console.log(codes.length)
-    db.groups.update(activeGroup, {size: codes.length})
+    db.groups.update(parseInt(activeGroup), {size: codes.size})
   }
 
   return (

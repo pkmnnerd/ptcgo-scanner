@@ -9,11 +9,15 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { Link, useLocation } from 'react-router-dom';
 
+import CodeGroupMenu from './CodeGroupMenu';
+
 import db from './db';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 import theme from './theme';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
 
 const pathToTitle = (path) => {
   if (path.match(/\/codes\/.+/)) {
@@ -22,7 +26,7 @@ const pathToTitle = (path) => {
   switch(path) {
     case '/codes':
     case '/codes/':
-      return 'Scanned codes';
+      return 'Saved codes';
     case '/about':
     case '/about/':
       return 'About';
@@ -34,10 +38,9 @@ const pathToTitle = (path) => {
 
 export default function NavBar(props) {
   const { activeGroup, setActiveGroup } = props;
-  console.log(props);
   const location = useLocation();
-  console.log(location);
   const [title, setTitle] = useState('');
+  const [menuAnchor, setMenuAnchor] = useState(null);
 
   const useDesktopUi = useMediaQuery(theme.breakpoints.up('sm'));
 
@@ -74,7 +77,14 @@ export default function NavBar(props) {
           <IconButton color="inherit" sx={{ mr: 2 }} component={Link} to="/codes">
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6">{title}</Typography>
+          <Typography variant="h6" sx={{flexGrow: 1}}>{title}</Typography>
+          <IconButton color="inherit">
+            <EditIcon />
+          </IconButton>
+          <IconButton color="inherit" onClick={(event) => setMenuAnchor(event.currentTarget)}>
+            <MoreVertIcon />
+          </IconButton>
+          <CodeGroupMenu anchorEl={menuAnchor} handleClose={() => setMenuAnchor(null)} />
         </Toolbar>
       </AppBar>
   )

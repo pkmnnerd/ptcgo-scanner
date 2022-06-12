@@ -20,13 +20,20 @@ import theme from './theme';
 
 function App() {
   const [activeGroup, setActiveGroup] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter basename="/ptcgo-scanner">
         <Box sx={{ display: 'flex' }}>
 
-          <NavBar theme={theme} activeGroup={activeGroup} setActiveGroup={setActiveGroup} />
-          <Navigation theme={theme} />
+          <NavBar 
+            theme={theme}
+            activeGroup={activeGroup}
+            setActiveGroup={setActiveGroup}
+            drawerOpen={drawerOpen}
+            setDrawerOpen={setDrawerOpen}
+          />
+          <Navigation theme={theme} drawerOpen={drawerOpen} />
           <Box sx={{ flexGrow: '1', pb: 7}}>
             <Toolbar />
             <Routes>

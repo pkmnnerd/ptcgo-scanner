@@ -42,7 +42,7 @@ export default function CodeGroupPage(props) {
    codes?.length > 0
     ? <List dense disablePadding>
         { codes?.map((code) => (
-          <ListItem disablePadding>
+          <ListItem disablePadding key={code.id}>
             <ListItemButton>
               <ListItemText primary={code.code} />
             </ListItemButton>

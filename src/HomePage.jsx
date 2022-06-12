@@ -22,7 +22,6 @@ export default function ScanPage(props) {
   const [groupId, setGroupId] = useState(null);
 
   const createNewGroup = async () => {
-    console.log('hi')
     const id = await db.groups.add({ name: "Unnamed group", timestamp: Math.floor(Date.now() / 1000), size: 0 });
     setActiveGroup(id);
   }
@@ -67,7 +66,7 @@ export default function ScanPage(props) {
             </CardContent>
             <CardActions>
               <Button endIcon={<ArrowForwardIcon />} variant="outlined" component={Link} to="/codes" >
-                View your existing code groups
+                Add to existing code groups
               </Button>
             </CardActions>
           </Card>
