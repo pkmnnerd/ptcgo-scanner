@@ -15,7 +15,7 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import InfoIcon from '@mui/icons-material/Info';
 import Toolbar from '@mui/material/Toolbar';
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import theme from './theme';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
@@ -23,50 +23,72 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function Navigation() {
   const [value, setValue] = useState(0);
+  const location = useLocation();
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setValue(0);
+    }
+    if (location.pathname === '/about') {
+      setValue(2);
+    }
+    if (location.pathname.startsWith('/codes')) {
+      setValue(1);
+    }
+  }, [location, setValue])
 
   const useNavRail = useMediaQuery(theme.breakpoints.up('sm'));
 
   if (useNavRail) {
-  const width = theme.spacing(7);
+    const width = theme.spacing(8);
+    const actions = [
+      {label: 'Scan', icon: <QrCodeScannerIcon />, to: '/'},
+      {label: 'Codes', icon: <FormatListBulletedIcon />, to: '/codes'},
+      {label: 'About', icon: <InfoIcon />, to: '/about'}
+    ];
+
     return (
-      <Drawer variant="permanent" 
+      <Paper
         sx={{
-          width: `calc(${width} + 1px)`,
+          width,
           flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: `calc(${width} + 1px)`, boxSizing: 'border-box' },
-      }}
+          zIndex: (theme) => theme.zIndex.drawer,
+          borderRight: (theme) => `1px solid ${theme.palette.divider}`
+        }}
+        elevation={0}
       >
         <Toolbar />
-        <Box>
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton sx={{minHeight: '48px'}} component={Link} to="/">
-                <ListItemIcon sx={{minWidth: '0px'}}>
-                  <QrCodeScannerIcon />
-                </ListItemIcon>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton sx={{minHeight: '48px'}} component={Link} to="/codes">
-                <ListItemIcon sx={{minWidth: '0px'}}>
-                  <FormatListBulletedIcon />
-                </ListItemIcon>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton sx={{minHeight: '48px'}} component={Link} to="/about">
-                <ListItemIcon sx={{minWidth: '0px'}}>
-                  <InfoIcon />
-                </ListItemIcon>
-              </ListItemButton>
-            </ListItem>
-          </List>
-        </Box>
-      </Drawer>
-
+        <BottomNavigation
+          showLabels
+          value={value}
+          onChange={(event, newValue) => {
+            setValue(newValue);
+          }}
+          sx={{
+            width,
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            position: 'fixed'
+          }}
+        >
+          {actions.map((action, index) => (
+            <BottomNavigationAction
+              sx={{
+                padding: '12px 0px',
+                minWidth: '40px'
+              }}
+              key={action.label}
+              label={value === index ? action.label : ''}
+              icon={action.icon}
+              component={Link}
+              to={action.to}
+            />
+          ))}
+        </BottomNavigation>
+      </Paper>
     );
 
   }
+
 
   return (
     <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: (theme) => theme.zIndex.drawer }} elevation={3}>

@@ -6,8 +6,11 @@ import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import Snackbar from '@mui/material/Snackbar';
+
+import CloseIcon from '@mui/icons-material/Close';
 
 import Viewfinder from './Viewfinder';
 
@@ -69,16 +72,14 @@ export default function Scanner(props) {
 
   const saveCode = (code, codes) => {
     codes.add(code)
-    console.log(code)
-    console.log(codes)
-    console.log(codes.size)
+    console.log(activeGroup)
     db.codes.add({
       id: `${activeGroup}_${code}`,
       groupId: activeGroup,
       code: code,
       timestamp: Math.floor(Date.now() / 1000),
     })
-    db.groups.update(parseInt(activeGroup), {size: codes.size})
+    db.groups.update(parseInt(activeGroup), {size: codes.size, updateTimestamp: Math.floor(Date.now()/1000)})
   }
 
   return (
@@ -152,6 +153,16 @@ export default function Scanner(props) {
         autoHideDuration={3000}
         onClose={() => setOpen(false)}
         message="Copied"
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={() => setOpen(false)}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
       />
     </Box>
   );

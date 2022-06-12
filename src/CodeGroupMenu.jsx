@@ -5,8 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 
 export default function CodeGroupMenu(props) {
-  const { anchorEl, handleClose } = props;
-  console.log(anchorEl);
+  const { anchorEl, handleClose, handleCopy, handleDelete } = props;
   return (
     <Menu
       id="menu-appbar"
@@ -23,8 +22,8 @@ export default function CodeGroupMenu(props) {
       open={Boolean(anchorEl)}
       onClose={handleClose}
     >
-      <MenuItem onClick={handleClose}>Copy codes</MenuItem>
-      <MenuItem onClick={handleClose}>Delete group</MenuItem>
+      <MenuItem onClick={() => handleCopy ? handleCopy() : handleClose()}>Copy codes</MenuItem>
+      <MenuItem onClick={() => handleDelete ? handleDelete() : handleClose()}>Delete group</MenuItem>
     </Menu>
   );
 }

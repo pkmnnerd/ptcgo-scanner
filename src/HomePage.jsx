@@ -19,10 +19,11 @@ import Scanner from './Scanner';
 
 export default function ScanPage(props) {
   const { activeGroup, setActiveGroup } = props;
-  const [groupId, setGroupId] = useState(null);
 
   const createNewGroup = async () => {
-    const id = await db.groups.add({ name: "Unnamed group", timestamp: Math.floor(Date.now() / 1000), size: 0 });
+    const time = Math.floor(Date.now() / 1000);
+    const id = await db.groups.add({ name: "Unnamed group", timestamp: time, updateTimestamp: time, size: 0 });
+    await db.groups.update(id, {name: `Unnamed group ${id}`})
     setActiveGroup(id);
   }
   if (activeGroup) {

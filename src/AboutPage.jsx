@@ -9,8 +9,6 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 
-import { useNavigate, useParams } from 'react-router-dom';
-
 export default function AboutPage(props) {
   return (
     <Container sx={{pt: '1em'}}>
@@ -22,10 +20,10 @@ export default function AboutPage(props) {
           Created by Brian Liu
         </Typography>
         <Typography>
-          View my other projects at <a href="https://jumpydoll.com/users/pkmnnerd" target="_blank" rel="noreferrer">jumpydoll.com/users/pkmnnerd</a>
+          PTCGO Scanner is a fast QR code scanner for Pokemon TCG Online code cards. You can organize codes into groups and all data is saved locally in your browser.
         </Typography>
         <Typography>
-          Want to host your own side projects just like this? Check out <a href="https://jumpydoll.com" target="_blank" rel="noreferrer">JumpyDoll</a>, the easiest way to
+          View my other projects at <a href="https://jumpydoll.com/users/pkmnnerd" target="_blank" rel="noreferrer">jumpydoll.com/users/pkmnnerd</a>. Want to host your own side projects just like this? Check out <a href="https://jumpydoll.com" target="_blank" rel="noreferrer">JumpyDoll</a>, the easiest way to
           start your own side projects.
         </Typography>
       </Stack>
