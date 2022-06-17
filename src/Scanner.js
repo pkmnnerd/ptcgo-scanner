@@ -56,12 +56,17 @@ export default function Scanner(props) {
   }, [codes, activeGroup, setLoading])
 
   useEffect(() => {
-    navigator.permissions.query({name:'camera'}).then(function(result) {
-      setPermission(result.state);
-      result.onchange = (res) => {
-        setPermission(res.target.state);
-      };
-    });
+    if (navigator.permissions) {
+      navigator.permissions.query({name:'camera'}).then(function(result) {
+        setPermission(result.state);
+        result.onchange = (res) => {
+          setPermission(res.target.state);
+        };
+      });
+    } else {
+      setPermission('unknown');
+
+    }
   }, [setPermission]);
 
   if (permission === 'denied') {
