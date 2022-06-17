@@ -14,6 +14,7 @@ import './App.css';
 import AboutPage from './AboutPage';
 import CodeGroupsPage from './CodeGroupsPage';
 import CodeGroupPage from './CodeGroupPage';
+import ErrorBoundary from './ErrorBoundary';
 import NavBar from './NavBar';
 import Navigation from './Navigation';
 import HomePage from './HomePage';
@@ -25,6 +26,7 @@ function App() {
   const [snackbarText, setSnackbarText] = useState(null);
   return (
     <ThemeProvider theme={theme}>
+      <ErrorBoundary>
       <BrowserRouter basename="/ptcgo-scanner">
         <Box sx={{ display: 'flex', minHeight: '100vh' }}>
 
@@ -65,7 +67,7 @@ function App() {
           </Box>
         </Box>
       </BrowserRouter>
-      
+      </ErrorBoundary>     
     </ThemeProvider>
   );
 }
