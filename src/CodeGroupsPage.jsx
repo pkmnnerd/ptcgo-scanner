@@ -41,7 +41,7 @@ export default function CodeGroupsPage(props) {
             </ListItem>
           ))}
         </List>
-      : <Typography sx={{width: '100%', p: '1em'}} align="center">No codes saved yet</Typography>
+      : <Typography sx={{p: '1em'}} align="center">No codes saved yet</Typography>
   );
 
   const useDesktopUi = useMediaQuery(theme.breakpoints.up('sm'));

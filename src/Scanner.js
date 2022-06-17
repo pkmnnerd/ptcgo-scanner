@@ -8,12 +8,15 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 
 import CloseIcon from '@mui/icons-material/Close';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+import theme from './theme';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import Viewfinder from './Viewfinder';
-
 import db from './db';
 
 const CODE_REGEX = /^[A-Z0-9]{3}-[A-Z0-9]{4}-[A-Z0-9]{3}-[A-Z0-9]{3}$/
@@ -21,7 +24,7 @@ const CODE_REGEX = /^[A-Z0-9]{3}-[A-Z0-9]{4}-[A-Z0-9]{3}-[A-Z0-9]{3}$/
 const MUTED_KEY = 'ptcgo-scanner:muted';
 
 export default function Scanner(props) {
-  const { activeGroup } = props;
+  const { activeGroup, setActiveGroup } = props;
 
   const [codes, setCodes] = useState(new Set());
   const [text, setText] = useState('Scanning...');
@@ -32,6 +35,8 @@ export default function Scanner(props) {
   const [facingBack, setFacingBack] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  const useDesktopUi = useMediaQuery(theme.breakpoints.up('sm'));
+
   if (!localStorage.getItem(MUTED_KEY)) {
     localStorage.setItem(MUTED_KEY, 'true')
   }
@@ -41,7 +46,7 @@ export default function Scanner(props) {
 
   useEffect(() => {
     setLoading(true);
-    db.codes.where('groupId').equals(activeGroup).toArray()
+    db.codes.where('groupId').equals(activeGroup.id).toArray()
       .then((savedCodes) => {
         savedCodes.forEach((code) => {
           codes.add(code.code);
@@ -74,19 +79,29 @@ export default function Scanner(props) {
     codes.add(code)
     console.log(activeGroup)
     db.codes.add({
-      id: `${activeGroup}_${code}`,
-      groupId: activeGroup,
+      id: `${activeGroup.id}_${code}`,
+      groupId: activeGroup.id,
       code: code,
       timestamp: Math.floor(Date.now() / 1000),
     })
-    db.groups.update(parseInt(activeGroup), {size: codes.size, updateTimestamp: Math.floor(Date.now()/1000)})
+    db.groups.update(activeGroup.id, {size: codes.size, updateTimestamp: Math.floor(Date.now()/1000)})
   }
 
   return (
     <Box>
-      <Container maxWidth="sm" disableGutters>
+      <Stack direction="row" alignItems="center">
+        { useDesktopUi &&
+          <IconButton onClick={() => setActiveGroup(null)}>
+            <ArrowBackIcon sx={{mr: 1}}/>
+          </IconButton>
+        }
+          <Typography variant="h5">
+            Scanning {activeGroup.name}...
+          </Typography>
+      </Stack>
+      <Container maxWidth="xs" disableGutters>
         <QrReader
-          key={`${activeGroup}_${facingBack}`}
+          key={`${activeGroup.id}_${facingBack}`}
           onResult={(result, error) => {
             if (!!result) {
               if (result.text.match(CODE_REGEX)) {

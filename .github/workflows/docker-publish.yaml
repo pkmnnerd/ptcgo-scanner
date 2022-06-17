@@ -8,8 +8,7 @@ on:
 
 env:
   REGISTRY: registry.jumpydoll.com
-
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: app/c03e154b
 
 
 jobs:

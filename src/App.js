@@ -3,10 +3,11 @@ import ThemeProvider from '@mui/system/ThemeProvider';
 
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-
-import { createTheme } from '@mui/material/styles';
 
 import './App.css';
 
@@ -21,6 +22,7 @@ import theme from './theme';
 function App() {
   const [activeGroup, setActiveGroup] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [snackbarText, setSnackbarText] = useState(null);
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter basename="/ptcgo-scanner">
@@ -32,6 +34,7 @@ function App() {
             setActiveGroup={setActiveGroup}
             drawerOpen={drawerOpen}
             setDrawerOpen={setDrawerOpen}
+            setSnackbarText={setSnackbarText}
           />
           <Navigation theme={theme} drawerOpen={drawerOpen} />
           <Box sx={{ flexGrow: '1', pb: 7}}>
@@ -39,10 +42,26 @@ function App() {
             <Routes>
               <Route exact path="/" element={<HomePage activeGroup={activeGroup} setActiveGroup={setActiveGroup} />} />
               <Route exact path="/codes" element={<CodeGroupsPage />} />
-              <Route path="/codes/:groupId" element={<CodeGroupPage setActiveGroup={setActiveGroup} />} />
+              <Route path="/codes/:groupId" element={<CodeGroupPage setActiveGroup={setActiveGroup} setSnackbarText={setSnackbarText} />} />
               <Route exact path="/about" element={<AboutPage />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
+            <Snackbar
+              open={!!snackbarText}
+              autoHideDuration={3000}
+              onClose={() => setSnackbarText(null)}
+              message={snackbarText}
+              action={
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={() => setSnackbarText(null)}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              }
+            />
           </Box>
         </Box>
       </BrowserRouter>

@@ -13,6 +13,7 @@ import CodeGroupMenu from './CodeGroupMenu';
 
 import db from './db';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { copyCodes } from './common';
 
 import theme from './theme';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -37,7 +38,7 @@ const pathToTitle = (path) => {
 }
 
 export default function NavBar(props) {
-  const { activeGroup, setActiveGroup } = props;
+  const { activeGroup, setActiveGroup, setSnackbarText } = props;
   const location = useLocation();
   const [title, setTitle] = useState('');
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -67,10 +68,15 @@ export default function NavBar(props) {
   }
 
   if (location.pathname.match(/\/codes\/.+/)) {
-    const groupId = location.pathname.substring(7);
-    db.groups.get(parseInt(groupId)).then((group) => {
+    const groupId = parseInt(location.pathname.substring(7));
+    db.groups.get(groupId).then((group) => {
       setTitle(group.name);
     })
+    const handleCopy = () => {
+      copyCodes(groupId);
+      setMenuAnchor(null);
+      setSnackbarText('Copied');
+    }
     return (
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
@@ -84,7 +90,11 @@ export default function NavBar(props) {
           <IconButton color="inherit" onClick={(event) => setMenuAnchor(event.currentTarget)}>
             <MoreVertIcon />
           </IconButton>
-          <CodeGroupMenu anchorEl={menuAnchor} handleClose={() => setMenuAnchor(null)} />
+          <CodeGroupMenu
+            anchorEl={menuAnchor}
+            handleClose={() => setMenuAnchor(null)}
+            handleCopy={handleCopy}
+            />
         </Toolbar>
       </AppBar>
   )

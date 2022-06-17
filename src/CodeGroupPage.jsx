@@ -12,7 +12,6 @@ import Paper from '@mui/material/Paper';
 import Divider from '@mui/material/Divider';
 import Fab from '@mui/material/Fab';
 import IconButton from '@mui/material/IconButton';
-import Snackbar from '@mui/material/Snackbar';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Dialog from '@mui/material/Dialog';
@@ -24,24 +23,24 @@ import DialogContentText from '@mui/material/DialogContentText';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import CloseIcon from '@mui/icons-material/Close';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import theme from './theme';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import db from './db';
 import CodeGroupMenu from './CodeGroupMenu';
+import { copyCodes, deleteGroup } from './common';
 
 import { useLiveQuery } from 'dexie-react-hooks';
 
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function CodeGroupPage(props) {
-  const { setActiveGroup } = props;
+  const { setActiveGroup, setSnackbarText } = props;
   const groupId = parseInt(useParams().groupId);
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
@@ -69,21 +68,20 @@ export default function CodeGroupPage(props) {
     : <Typography sx={{p: '1em'}} align="center">No codes in this group</Typography>
   );
   const handleCopy = () => {
-    const codeText = codes?.map((code) => code.code).join('\n');
-    navigator.clipboard.writeText(codeText);
-    setSnackbarOpen(true);
+    copyCodes(groupId);
     setMenuAnchor(null);
+    setSnackbarText('Copied');
   }
 
   const handleDelete = () => {
     setDeleting(true);
     setDeleteError(null);
-    db.codes.where('groupId').equals(groupId)
-      .delete()
-      .then(() => db.groups.delete(parseInt(groupId)))
+
+    deleteGroup(groupId)
       .then((res) => {
         setDeleting(false);
         setDeleteDialogOpen(false);
+        setSnackbarText(`Deleted group ${group?.name}`);
         setActiveGroup(null);
         navigate('/codes');
       })
@@ -91,26 +89,10 @@ export default function CodeGroupPage(props) {
         setDeleteError(err);
         setDeleting(false);
       })
-
   }
+
   const popUps = (
     <>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        message="Copied"
-        action={
-          <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={() => setSnackbarOpen(false)}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        }
-      />
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -137,10 +119,10 @@ export default function CodeGroupPage(props) {
 
   if (useDesktopUi) {
     return (
-      <Container sx={{pt: '1em'}}>
-        {popUps}
-        <Paper sx={{position: 'relative' ,minHeight: '70vh'}}>
+      <Box>
+      <Container>
           <Stack direction="row" spacing={1} alignItems="center" justifyItems="flex-start" sx={{p: 2}}>
+            <IconButton onClick={() => navigate('/codes')}><ArrowBackIcon /></IconButton>
             <Typography variant="h5">{group?.name}</Typography>
             <Box sx={{flexGrow: 1}}/>
             <IconButton><EditIcon /></IconButton>
@@ -155,7 +137,10 @@ export default function CodeGroupPage(props) {
               }}
             />
           </Stack>
+      </Container>
           <Divider />
+      <Container sx={{maxHeight: '80vh'}}>
+        {popUps}
           {listElement}
           <Fab color="secondary" aria-label="Scan codes" variant="extended"
             sx={{
@@ -164,15 +149,15 @@ export default function CodeGroupPage(props) {
               right: 24,
             }}
             onClick={() => {
-              setActiveGroup(groupId);
+              setActiveGroup(group);
               navigate('/');
             }}
           >
             <QrCodeScannerIcon sx={{mr: 1}}/>
             Scan codes
           </Fab>
-        </Paper>
       </Container>
+      </Box>
     );
   }
 
@@ -187,7 +172,7 @@ export default function CodeGroupPage(props) {
           right: 16,
         }}
         onClick={() => {
-          setActiveGroup(groupId);
+          setActiveGroup(group);
           navigate('/');
         }}
       >

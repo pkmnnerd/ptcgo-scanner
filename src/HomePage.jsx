@@ -15,22 +15,16 @@ import { Link } from 'react-router-dom';
 
 import db from './db';
 import Scanner from './Scanner';
+import { createNewGroup } from './common';
 
 
 export default function ScanPage(props) {
   const { activeGroup, setActiveGroup } = props;
 
-  const createNewGroup = async () => {
-    const time = Math.floor(Date.now() / 1000);
-    const id = await db.groups.add({ name: "Unnamed group", timestamp: time, updateTimestamp: time, size: 0 });
-    await db.groups.update(id, {name: `Unnamed group ${id}`})
-    setActiveGroup(id);
-  }
   if (activeGroup) {
     return (
       <Container sx={{ py: 1 }}>
-        <Typography variant="h4" align="left">Scan codes</Typography>
-        <Scanner activeGroup={activeGroup} />
+        <Scanner activeGroup={activeGroup} setActiveGroup={setActiveGroup} />
       </Container>
     );
   }
@@ -50,7 +44,10 @@ export default function ScanPage(props) {
               <Button
                 endIcon={<QrCodeScannerIcon />}
                 variant="outlined"
-                onClick={() => createNewGroup()}
+                onClick={() => {
+                  createNewGroup()
+                    .then((group) => setActiveGroup(group))
+                }}
               >
                 Start scanning new codes
               </Button>
