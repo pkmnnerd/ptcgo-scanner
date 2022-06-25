@@ -39,6 +39,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ClassifyDialog from './ClassifyDialog';
+import EditNameDialog from './EditNameDialog';
 
 export default function CodeGroupPage(props) {
   const { setActiveGroup, setSnackbarText } = props;
@@ -48,6 +49,7 @@ export default function CodeGroupPage(props) {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
   const [checkDialogOpen, setCheckDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const navigate = useNavigate();
   const group = useLiveQuery(
@@ -139,6 +141,13 @@ export default function CodeGroupPage(props) {
         groupId={groupId}
         setSnackbarText={setSnackbarText}
       />
+      <EditNameDialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        groupId={groupId}
+        groupName={group?.name}
+        setSnackbarText={setSnackbarText}
+      />
     </>
 
   )
@@ -151,7 +160,7 @@ export default function CodeGroupPage(props) {
             <IconButton onClick={() => navigate('/codes')}><ArrowBackIcon /></IconButton>
             <Typography variant="h5">{group?.name}</Typography>
             <Box sx={{flexGrow: 1}}/>
-            <IconButton><EditIcon /></IconButton>
+            <IconButton onClick={() => setEditDialogOpen(true)}><EditIcon /></IconButton>
             <IconButton onClick={(event) => setMenuAnchor(event.currentTarget)}><MoreVertIcon /></IconButton>
             <CodeGroupMenu
               anchorEl={menuAnchor}
@@ -200,7 +209,7 @@ export default function CodeGroupPage(props) {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" sx={{flexGrow: 1}}>{group?.name}</Typography>
-          <IconButton color="inherit">
+          <IconButton color="inherit" onClick={() => setEditDialogOpen(true)}>
             <EditIcon />
           </IconButton>
           <IconButton color="inherit" onClick={(event) => setMenuAnchor(event.currentTarget)}>
