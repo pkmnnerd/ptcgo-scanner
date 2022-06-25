@@ -18,6 +18,7 @@ import ErrorBoundary from './ErrorBoundary';
 import NavBar from './NavBar';
 import Navigation from './Navigation';
 import HomePage from './HomePage';
+import Tracker from './Tracker';
 import theme from './theme';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <ErrorBoundary>
       <BrowserRouter basename="/ptcgo-scanner">
+        <Tracker />
         <Box sx={{ display: 'flex', minHeight: '100vh' }}>
 
           <NavBar 
