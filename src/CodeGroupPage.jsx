@@ -8,7 +8,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import Paper from '@mui/material/Paper';
 import Divider from '@mui/material/Divider';
 import Fab from '@mui/material/Fab';
 import IconButton from '@mui/material/IconButton';
@@ -19,6 +18,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContentText from '@mui/material/DialogContentText';
+
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
 
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -31,11 +33,12 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import db from './db';
 import CodeGroupMenu from './CodeGroupMenu';
-import { copyCodes, deleteGroup } from './common';
+import { copyCodes, copyCodesWithSet, deleteGroup } from './common';
 
 import { useLiveQuery } from 'dexie-react-hooks';
 
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import ClassifyDialog from './ClassifyDialog';
 
 export default function CodeGroupPage(props) {
   const { setActiveGroup, setSnackbarText } = props;
@@ -44,15 +47,26 @@ export default function CodeGroupPage(props) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
+  const [checkDialogOpen, setCheckDialogOpen] = useState(false);
 
   const navigate = useNavigate();
   const group = useLiveQuery(
     () => db.groups.get(parseInt(groupId))
   )
   const codes = useLiveQuery(
-    () => db.codes.where('groupId').equals(groupId).toArray()
+    () => db.codes.where('groupId').equals(groupId).sortBy('timestamp')
   )
   const useDesktopUi = useMediaQuery(theme.breakpoints.up('sm'));
+  
+  const getSecondaryText = (codeObject) => {
+    if (codeObject.status) {
+      const updateTime = new Date(codeObject.checkTimestamp * 1000);
+      const timeString = updateTime.toLocaleString();
+      return `${codeObject.status} - Last checked ${timeString}`
+    } else {
+      return `Not checked`;
+    }
+  }
 
   const listElement = (
    codes?.length > 0
@@ -60,7 +74,7 @@ export default function CodeGroupPage(props) {
         { codes?.map((code) => (
           <ListItem disablePadding key={code.id}>
             <ListItemButton>
-              <ListItemText primary={code.code} />
+              <ListItemText primary={code.code} secondary={getSecondaryText(code)} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -69,6 +83,12 @@ export default function CodeGroupPage(props) {
   );
   const handleCopy = () => {
     copyCodes(groupId);
+    setMenuAnchor(null);
+    setSnackbarText('Copied');
+  }
+
+  const handleCopyWithSet = () => {
+    copyCodesWithSet(groupId);
     setMenuAnchor(null);
     setSnackbarText('Copied');
   }
@@ -113,6 +133,12 @@ export default function CodeGroupPage(props) {
           <LoadingButton loading={deleting} loadingPosition="end" endIcon={<DeleteIcon />} onClick={handleDelete} variant="contained">Delete</LoadingButton>
         </DialogActions>
       </Dialog>
+      <ClassifyDialog
+        open={checkDialogOpen}
+        onClose={() => setCheckDialogOpen(false)}
+        groupId={groupId}
+        setSnackbarText={setSnackbarText}
+      />
     </>
 
   )
@@ -131,9 +157,14 @@ export default function CodeGroupPage(props) {
               anchorEl={menuAnchor}
               handleClose={() => setMenuAnchor(null)}
               handleCopy={handleCopy}
+              handleCopyWithSet={handleCopyWithSet}
               handleDelete={() => {
                 setMenuAnchor(null);
                 setDeleteDialogOpen(true);
+              }}
+              handleCheck={() => {
+                setMenuAnchor(null);
+                setCheckDialogOpen(true);
               }}
             />
           </Stack>
@@ -161,10 +192,40 @@ export default function CodeGroupPage(props) {
     );
   }
 
-  return (<>
-    <Container disableGutters={codes?.length > 0} sx={{pt: '1em'}}>
-      {listElement}
-    </Container>
+  return (
+    <>
+      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <Toolbar>
+          <IconButton color="inherit" sx={{ mr: 2 }} component={Link} to="/codes">
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{flexGrow: 1}}>{group?.name}</Typography>
+          <IconButton color="inherit">
+            <EditIcon />
+          </IconButton>
+          <IconButton color="inherit" onClick={(event) => setMenuAnchor(event.currentTarget)}>
+            <MoreVertIcon />
+          </IconButton>
+          <CodeGroupMenu
+            anchorEl={menuAnchor}
+            handleClose={() => setMenuAnchor(null)}
+            handleCopy={handleCopy}
+            handleCopyWithSet={handleCopyWithSet}
+            handleDelete={() => {
+              setMenuAnchor(null);
+              setDeleteDialogOpen(true);
+            }}
+            handleCheck={() => {
+              setMenuAnchor(null);
+              setCheckDialogOpen(true);
+            }}
+          />
+        </Toolbar>
+      </AppBar>
+      <Container disableGutters={codes?.length > 0} sx={{pt: '1em'}}>
+        {popUps}
+        {listElement}
+      </Container>
       <Fab color="secondary" aria-label="Scan codes"
         sx={{
           position: 'absolute',
