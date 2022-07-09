@@ -51,7 +51,8 @@ export default function ClassifyDialog(props) {
       <DialogTitle id="check-dialog-title">Check codes</DialogTitle>
       <DialogContent>
         <DialogContentText id="check-dialog-description">
-          To check your codes, you must first enter your Pokemon.com cookies below.<br /><br />
+          To check your codes, you must first enter your Pokemon.com cookies below. This process should be safe, but I am not
+          responsible if anything happens to your Pokemon.com account with this process.<br /><br />
           To get your credentials:<br />
           1. In a desktop Chrome browser, go to <a href="https://pokemon.com/redeem" target="_blank">https://pokemon.com/redeem</a> and log in.<br />
           2. Complete the Captcha.<br />

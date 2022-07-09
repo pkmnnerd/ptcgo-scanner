@@ -23,6 +23,16 @@ export default function AboutPage(props) {
           PTCGO Scanner is a fast QR code scanner for Pokemon TCG Online code cards. You can organize codes into groups and all data is saved locally in your browser.
         </Typography>
         <Typography>
+          If you're interested in selling your codes, here are a few reputable sites you can sell to:
+        </Typography>
+        <ul>
+          <li><a href="https://www.cardcaverntradingcards.com/pages/buylist" target="blank" rel="noopener noreferrer">Card Cavern</a></li>
+          <li><a href="https://ptcgo.co/sell-ptcgo-code-pokemon/" target="blank" rel="noopener noreferrer">PTCGO.co</a></li>
+        </ul>
+        <Typography>
+          This site is not affiliate with the Pokemon Company, The Pokemon TCG, or any of the above sites in any way.
+        </Typography>
+        <Typography>
           View my other projects at <a href="https://jumpydoll.com/users/pkmnnerd" target="_blank" rel="noreferrer">jumpydoll.com/users/pkmnnerd</a>. Want to host your own side projects just like this? Check out <a href="https://jumpydoll.com" target="_blank" rel="noreferrer">JumpyDoll</a>, the easiest way to
           start your own side projects.
         </Typography>
